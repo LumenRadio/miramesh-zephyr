@@ -1,0 +1,101 @@
+config MIRAMESH
+    bool "MiraMesh network stack"
+    default y
+    depends on SOC_NRF52840 || SOC_NRF52832
+    depends on MPSL
+    depends on MPSL_TIMESLOT_SESSION_COUNT > 1
+    depends on POLL
+    depends on ENTROPY_GENERATOR
+    depends on ENTROPY_DEVICE_RANDOM_GENERATOR
+    depends on TICKLESS_KERNEL
+    depends on POSIX_API
+    help
+        Enable the MiraMesh network stack, allowing
+        to communicate with other MiraMesh nodes
+
+config MIRAMESH_STACK_SIZE
+    int "Size of MiraMesh stack"
+    default 2048
+    help
+        Stack size of the thread running MiraMesh
+
+config MIRAMESH_THREAD_PRIO
+    int "MiraMesh thread prio"
+    default -15
+    help
+        Thread prio of the MiraMesh thread, shall be 
+        less than 0 in order to be cooperatively scheduled
+
+config MIRAMESH_INIT_PRIO
+    int
+    default 32
+
+config MIRAMESH_RTC_ID
+    int "RTC ID to use for MiraMesh"
+    default 2
+    help
+        RTC ID to use for MiraMesh. Currently only RTC2 is supported.
+
+config MIRAMESH_RTC_IRQ_PRIO
+    int "MiraMesh RTC IRQ priority"
+    default 5
+    help
+        RTC IRQ priority to use for MiraMesh
+
+config MIRAMESH_SWI_ID
+	default 0
+	int "Software interrupt to use for MiraMesh"
+    help
+        Software interrupt to use for MiraMesh. Valid values are 0, 2, 4
+
+config MIRAMESH_SWI_IRQ_PRIO
+    int "MiraMesh SWI IRQ priority"
+    default 1
+    help
+        SWI IRQ priority to use for MiraMesh
+
+config MIRAMESH_INTEGRATION_VERIFICATION_LOG
+    bool "Turn on module for logging miramesh stack metrics"
+    default n
+    depends on MIRAMESH_LOG_LEVEL_DBG
+    help
+        Should be used to verify working integration between MiraMesh and Zephyr.
+        Module will log metrics from the stack that can be used to tell if
+        MiraMesh is allowed to run as it should.
+
+config MIRAMESH_INTEGRATION_VERIFICATION_LOG_PACKETS
+    bool "Turn on all available miramesh stack metrics"
+    default n
+    depends on MIRAMESH_INTEGRATION_VERIFICATION_LOG
+    help
+        Enables logging of all available diagnostic data from
+        mira_diag_mac_get_statistics. See mira_diag.h for more information.
+
+config MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS
+    bool "Turn on logging events from MiraMesh IRQs"
+    default n
+    depends on MIRAMESH_INTEGRATION_VERIFICATION_LOG
+    help
+        Enables logging of events from MiraMesh's MAC layer IRQs.
+        The number logged is the number of times the event have happened
+        since the last time it was printed.
+
+config MIRAMESH_INTEGRATION_VERIFICATION_LOG_INTERVAL_SECONDS
+    int
+    default 10
+
+config SWI_CALLBACK_HANDLER_IRQ_PRIO
+    int "MiraMesh integeration SWI callback handler IRQ priority"
+    default 5
+    help
+        SWI IRQ priority to use for SWI callback handler
+
+config SWI_CALLBACK_LIST_SIZE
+    int
+    default 1
+
+if MIRAMESH
+module = MIRAMESH
+module-str = miramesh
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+endif

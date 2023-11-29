@@ -1,0 +1,8 @@
+BasedOnStyle: Mozilla
+IndentWidth: 4
+ColumnLimit: 100
+SortIncludes: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+AlignEscapedNewlines: Left
+AllowShortBlocksOnASingleLine: true
