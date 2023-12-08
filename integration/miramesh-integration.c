@@ -11,7 +11,9 @@
 #include <zephyr/irq.h>
 #include <zephyr/logging/log.h>
 #include <miramesh.h>
-
+#if USE_PARTITION_MANAGER
+#include <zephyr/storage/flash_map.h>
+#endif
 LOG_MODULE_REGISTER(miramesh_integration, CONFIG_MIRAMESH_LOG_LEVEL);
 
 #if CONFIG_MIRAMESH_RTC_ID == 2
@@ -31,9 +33,14 @@ LOG_MODULE_REGISTER(miramesh_integration, CONFIG_MIRAMESH_LOG_LEVEL);
 #error "SWI not supported"
 #endif
 
+#if USE_PARTITION_MANAGER
+#define FACTORY_CONFIG_PARTITION_START FIXED_PARTITION_OFFSET(FACTORY_CONFIG)
+#define FACTORY_CONFIG_PARTITION_LENGTH FIXED_PARTITION_SIZE(FACTORY_CONFIG)
+#else
 #define FACTORY_CONFIG_PARTITION_NODE DT_NODELABEL(factory_config)
 #define FACTORY_CONFIG_PARTITION_START DT_REG_ADDR(FACTORY_CONFIG_PARTITION_NODE)
 #define FACTORY_CONFIG_PARTITION_LENGTH DT_REG_SIZE(FACTORY_CONFIG_PARTITION_NODE)
+#endif /* USE_PARTITION_MANAGER */
 
 static void miramesh_integration_hardware_init(miramesh_hardware_cfg_t* hwconfig)
 {
