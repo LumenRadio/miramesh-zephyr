@@ -160,7 +160,7 @@ void miramesh_integration_debug_log(void)
             log_mac_packet_diagnostics(&stats);
         }
         log_mac_events();
-        k_sleep(K_SECONDS(CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_INTERVAL_SECONDS));
+        k_sleep(K_SECONDS(CONFIG_MIRAMESH_VERIFICATION_LOG_RATE));
     }
 }
 

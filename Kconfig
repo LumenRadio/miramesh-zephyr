@@ -80,9 +80,11 @@ config MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS
         The number logged is the number of times the event have happened
         since the last time it was printed.
 
-config MIRAMESH_INTEGRATION_VERIFICATION_LOG_INTERVAL_SECONDS
-    int
-    default 10
+config MIRAMESH_VERIFICATION_LOG_RATE
+    int "Time between diagnostic log output"
+    default 120
+    help
+        Time in seconds between diagnostics logging
 
 config SWI_CALLBACK_HANDLER_IRQ_PRIO
     int "MiraMesh integeration SWI callback handler IRQ priority"
