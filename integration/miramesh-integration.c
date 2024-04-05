@@ -76,11 +76,8 @@ static int32_t miramesh_integration_init(void)
     memset(&miramesh_config, 0, sizeof(miramesh_config_t));
 
     IRQ_DIRECT_CONNECT(RTC_IRQn, CONFIG_MIRAMESH_RTC_IRQ_PRIO, rtc_miramesh_irq_handler, 0);
-    irq_enable(RTC_IRQn);
     IRQ_DIRECT_CONNECT(SWI1_IRQn, 2, swi1_irq_handler, 0);
-    irq_enable(SWI1_IRQn);
     IRQ_DIRECT_CONNECT(SWI_IRQn, CONFIG_MIRAMESH_SWI_IRQ_PRIO, swi_miramesh_irq_handler, 0);
-    irq_enable(SWI_IRQn);
     swi_callback_handler_init();
     miramesh_integration_thread_init(&miramesh_config);
 

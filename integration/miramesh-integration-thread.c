@@ -14,13 +14,8 @@ LOG_MODULE_DECLARE(miramesh_integration, CONFIG_MIRAMESH_LOG_LEVEL);
 K_MUTEX_DEFINE(miramesh_integration_api_lock);
 
 extern const k_tid_t miramesh_integration_thread_id;
-struct k_poll_signal miramesh_integration_signal;
 
-struct k_poll_event miramesh_integration_events[1] = {
-    K_POLL_EVENT_INITIALIZER(K_POLL_TYPE_SIGNAL,
-                             K_POLL_MODE_NOTIFY_ONLY,
-                             &miramesh_integration_signal),
-};
+static K_SEM_DEFINE(miramesh_integration_sem, 1, 1);
 
 static uint16_t random_number_get(void)
 {
@@ -47,7 +42,7 @@ static void miramesh_integration_unlock()
 
 static void miramesh_integration_notification_callback(void)
 {
-    k_poll_signal_raise(&miramesh_integration_signal, MIRAMESH_INTEGRATION_NOTIFY_EVENT);
+    k_sem_give(&miramesh_integration_sem);
 }
 
 static void miramesh_integration_wakeup_from_irq(void)
@@ -57,15 +52,13 @@ static void miramesh_integration_wakeup_from_irq(void)
 
 static void miramesh_integration_wakeup_from_app(void)
 {
-    k_poll_signal_raise(&miramesh_integration_signal, MIRAMESH_INTEGRATION_NOTIFY_EVENT);
+    k_sem_give(&miramesh_integration_sem);
 }
 
 static void miramesh_integration_thread(void)
 {
     do {
-        k_poll(miramesh_integration_events, 1, K_FOREVER);
-        miramesh_integration_events[0].signal->signaled = 0;
-        miramesh_integration_events[0].state = K_POLL_STATE_NOT_READY;
+        k_sem_take(&miramesh_integration_sem, K_FOREVER);
         /* Not really necessary as the thread is already an cooperative thread */
         k_sched_lock();
         miramesh_run_once();
@@ -86,7 +79,6 @@ K_THREAD_DEFINE(miramesh_integration_thread_id,
 void miramesh_integration_thread_init(miramesh_config_t* config)
 {
     k_mutex_init(&miramesh_integration_api_lock);
-    k_poll_signal_init(&miramesh_integration_signal);
     config->callback.api_lock = miramesh_integration_lock;
     config->callback.api_unlock = miramesh_integration_unlock;
     config->callback.wakeup_from_irq_callback = miramesh_integration_wakeup_from_irq;
