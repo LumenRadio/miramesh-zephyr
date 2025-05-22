@@ -13,11 +13,25 @@ meta-tool) into the Zephyr workspace.
 An example of using this module is available here:
 [MiraMesh zephyr network example](https://github.com/LumenRadio/miramesh-zephyr-network-example).
 
+## Version tags
+
+The repo is tagged with the combination of versions of MiraMesh and nRF Connect SDK like this:
+miramesh-2.10.0-ncs-v2.5.1
+
+The tags say which versions of MiraMesh and NCS that version of
+the integration layer has been built for and tested with.
+
+When the integration layer is updated, it will be tagged with the right versions after
+the tests have passed.
+
+Other combinations may work, but they have not (yet) been tested by LumenRadio.
+
 ## Tested versions
 
 | MiraMesh  | nRF Connect SDK |
 | --------- | --------------- |
 | 2.9.0     | v2.5.0          |
+| 2.10.0    | v2.5.1          |
 
 ## Configuration
 
