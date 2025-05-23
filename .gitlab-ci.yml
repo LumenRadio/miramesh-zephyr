@@ -1,3 +1,0 @@
-include:
-  - project: 'lumenradio/mira/public-repos-ci'
-    file: '/miramesh-zephyr/ci.yml'

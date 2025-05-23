@@ -1,7 +1,7 @@
-config MIRAMESH
+menuconfig MIRAMESH
     bool "MiraMesh network stack"
     default y
-    depends on SOC_NRF52840 || SOC_NRF52832
+    depends on SOC_SERIES_NRF52X || (SOC_SERIES_NRF54LX && SHARED_INTERRUPTS)
     depends on MPSL
     depends on MPSL_TIMESLOT_SESSION_COUNT > 1
     depends on POLL
@@ -9,50 +9,46 @@ config MIRAMESH
     depends on ENTROPY_DEVICE_RANDOM_GENERATOR
     depends on TICKLESS_KERNEL
     depends on POSIX_API
+    select NRFX_DPPI10 if SOC_SERIES_NRF54LX
+    select NRFX_DPPI20 if SOC_SERIES_NRF54LX
+    select NRFX_PPIB11 if SOC_SERIES_NRF54LX
+    select NRFX_PPIB21 if SOC_SERIES_NRF54LX
+    select NRFX_PPI if SOC_SERIES_NRF52X
     help
         Enable the MiraMesh network stack, allowing
         to communicate with other MiraMesh nodes
 
+if MIRAMESH
+
+config MIRAMESH_BT_FEM
+    bool "Enable functions to config the BT stack to use MiraMesh FEM handling"
+    default y
+    depends on MIRAMESH
+    depends on BT
+    select BT_CTLR_SDC_EVENT_TRIGGER
+    help
+      This creates functions that can be called to configure the BLE
+      stack to use MiraMesh's FEM handling before using the radio.
+      See miramesh-integration.h for more info.
+
 config MIRAMESH_STACK_SIZE
     int "Size of MiraMesh stack"
     default 2048
+    depends on MIRAMESH
     help
         Stack size of the thread running MiraMesh
 
 config MIRAMESH_THREAD_PRIO
     int "MiraMesh thread prio"
-    default -15
+    default 4
     help
         Thread prio of the MiraMesh thread, shall be 
-        less than 0 in order to be cooperatively scheduled
+        greater or equal to 0 as it has to be preemtively scheduled.
 
 config MIRAMESH_INIT_PRIO
     int
     default 32
-
-config MIRAMESH_RTC_ID
-    int "RTC ID to use for MiraMesh"
-    default 2
-    help
-        RTC ID to use for MiraMesh. Currently only RTC2 is supported.
-
-config MIRAMESH_RTC_IRQ_PRIO
-    int "MiraMesh RTC IRQ priority"
-    default 5
-    help
-        RTC IRQ priority to use for MiraMesh
-
-config MIRAMESH_SWI_ID
-	default 0
-	int "Software interrupt to use for MiraMesh"
-    help
-        Software interrupt to use for MiraMesh. Valid values are 0, 2, 4
-
-config MIRAMESH_SWI_IRQ_PRIO
-    int "MiraMesh SWI IRQ priority"
-    default 1
-    help
-        SWI IRQ priority to use for MiraMesh
+    depends on MIRAMESH
 
 config MIRAMESH_INTEGRATION_VERIFICATION_LOG
     bool "Turn on module for logging miramesh stack metrics"
@@ -83,20 +79,15 @@ config MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS
 config MIRAMESH_VERIFICATION_LOG_RATE
     int "Time between diagnostic log output"
     default 120
+    depends on MIRAMESH
     help
         Time in seconds between diagnostics logging
-
-config SWI_CALLBACK_HANDLER_IRQ_PRIO
-    int "MiraMesh integeration SWI callback handler IRQ priority"
-    default 5
-    help
-        SWI IRQ priority to use for SWI callback handler
 
 config SWI_CALLBACK_LIST_SIZE
     int
     default 1
+    depends on MIRAMESH
 
-if MIRAMESH
 module = MIRAMESH
 module-str = miramesh
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"

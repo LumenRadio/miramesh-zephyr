@@ -1,0 +1,6 @@
+west-commands:
+  - file: scripts/west/west_mira_license.py
+    commands:
+      - name: mira-license
+        class: MiraLicense
+        help: Flash Mira license to target device

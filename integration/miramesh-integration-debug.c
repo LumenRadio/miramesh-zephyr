@@ -12,14 +12,13 @@ extern const k_tid_t miramesh_integration_debug_log_thread_id;
 #ifdef CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS
 #include <mira_diag_log.h>
 
-typedef enum
-{
+typedef enum {
 #include "events.h.gen"
 } events_t;
 
-#define EVENT_VARS(evt)            \
-    volatile uint32_t count_##evt; \
-    uint32_t last_##evt
+#define EVENT_VARS(evt) \
+    volatile uint32_t count_ ## evt; \
+    uint32_t last_ ## evt
 
 EVENT_VARS(EVT_NET_RF_SLOTS_CALL_END_FAILED);
 EVENT_VARS(EVT_NET_RF_SLOTS_CALL_START_FAILED);
@@ -39,37 +38,40 @@ EVENT_VARS(EVT_NET_RF_SLOTS_SYNC_FAILED);
 EVENT_VARS(EVT_NET_RF_SLOTS_TX_END_FAILED);
 EVENT_VARS(EVT_NET_RF_SLOTS_TX_START_FAILED);
 
-static void evt_irq_callback(uint32_t event, va_list ap)
+static void evt_irq_callback(
+    uint32_t event,
+    va_list ap)
 {
 
 #define HANDLE_EVT(evt) \
-    case evt:           \
-        count_##evt++;  \
+    case evt: \
+        count_ ## evt++; \
         break
 
     switch (event) {
-        HANDLE_EVT(EVT_NET_RF_SLOTS_CALL_END_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_CALL_START_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_DELAY_END_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_DELAY_START_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_EXTEND_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_IRQ_INVALID);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_RX_END_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_RX_START_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_RX_POWER_END_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_DISCARD);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_DROP);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_END);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_START);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_SYNC_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_TX_END_FAILED);
-        HANDLE_EVT(EVT_NET_RF_SLOTS_TX_START_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_CALL_END_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_CALL_START_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_DELAY_END_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_DELAY_START_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_EXTEND_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_IRQ_INVALID);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_RX_END_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_RX_START_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_RX_POWER_END_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_DISCARD);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_DROP);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_END);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_SLOT_START);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_SYNC_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_TX_END_FAILED);
+    HANDLE_EVT(EVT_NET_RF_SLOTS_TX_START_FAILED);
     }
 #undef HANDLE_EVT
 }
 
-static bool always_true(void)
+static bool always_true(
+    void)
 {
     return true;
 }
@@ -86,14 +88,15 @@ static const mira_diag_log_callbacks_t evt_callbacks = {
 };
 #endif /* CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS */
 
-static void log_mac_events(void)
+static void log_mac_events(
+    void)
 {
 #ifdef CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS
-#define HANDLE_EVT(evt)                                 \
-    uint32_t tmp_##evt = count_##evt - last_##evt;      \
-    last_##evt = count_##evt;                           \
-    if (tmp_##evt != 0) {                               \
-        LOG_DBG(#evt ":%lu", (unsigned long)tmp_##evt); \
+#define HANDLE_EVT(evt) \
+    uint32_t tmp_ ## evt = count_ ## evt - last_ ## evt; \
+    last_ ## evt = count_ ## evt; \
+    if (tmp_ ## evt != 0) { \
+        LOG_DBG(#evt ":%lu", (unsigned long) tmp_ ## evt); \
     }
     HANDLE_EVT(EVT_NET_RF_SLOTS_CALL_END_FAILED);
     HANDLE_EVT(EVT_NET_RF_SLOTS_CALL_START_FAILED);
@@ -114,7 +117,8 @@ static void log_mac_events(void)
 #endif /* CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS */
 }
 
-static void log_mac_common_diagnostics(mira_diag_mac_statistics_t* stats)
+static void log_mac_common_diagnostics(
+    mira_diag_mac_statistics_t *stats)
 {
     LOG_DBG("TX dropped: %u", stats->tx_dropped);
     LOG_DBG("TX failed: %u", stats->tx_failed);
@@ -128,7 +132,8 @@ static void log_mac_common_diagnostics(mira_diag_mac_statistics_t* stats)
     LOG_DBG("Bytes sent: %u", stats->bytes_sent);
 }
 
-static void log_mac_packet_diagnostics(mira_diag_mac_statistics_t* stats)
+static void log_mac_packet_diagnostics(
+    mira_diag_mac_statistics_t *stats)
 {
 #ifdef CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_PACKETS
     LOG_DBG("RX not for us: %u", stats->rx_not_for_us_packets);
@@ -141,7 +146,8 @@ static void log_mac_packet_diagnostics(mira_diag_mac_statistics_t* stats)
 #endif /* CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_PACKETS */
 }
 
-void miramesh_integration_debug_log(void)
+void miramesh_integration_debug_log(
+    void)
 {
     mira_diag_mac_statistics_t stats;
     mira_status_t status;
@@ -165,12 +171,12 @@ void miramesh_integration_debug_log(void)
 }
 
 K_THREAD_DEFINE(miramesh_integration_debug_log_thread_id,
-                512,
-                miramesh_integration_debug_log,
-                NULL,
-                NULL,
-                NULL,
-                10,
-                0,
-                0);
+    512,
+    miramesh_integration_debug_log,
+    NULL,
+    NULL,
+    NULL,
+    10,
+    0,
+    0);
 #endif /* CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG */

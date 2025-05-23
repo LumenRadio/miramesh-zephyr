@@ -7,6 +7,10 @@
 
 LOG_MODULE_DECLARE(miramesh_integration, CONFIG_MIRAMESH_LOG_LEVEL);
 
+#define CALLBACK_SWI_NODE DT_NODELABEL(callback_swi)
+#define CALLBACK_SWI_IRQN DT_IRQN(CALLBACK_SWI_NODE)
+#define CALLBACK_SWI_IRQ_PRIO DT_IRQ(CALLBACK_SWI_NODE, priority)
+
 static swi_callback_t registered_swi_callbacks[CONFIG_SWI_CALLBACK_LIST_SIZE];
 static volatile int swi_callbacks_invoked[CONFIG_SWI_CALLBACK_LIST_SIZE];
 
@@ -19,32 +23,38 @@ ISR_DIRECT_DECLARE(swi_cb_isr)
             registered_swi_callbacks[i]();
         }
     }
-    return 1;
+    return 1; /* Zephyr semaphores can be modified from this interrupt, tell Zephyr to reschedule after this interrupt */
 }
 
-void swi_callback_handler_init(void)
+void swi_callback_handler_init(
+    void)
 {
     for (int i = 0; i < CONFIG_SWI_CALLBACK_LIST_SIZE; ++i) {
         registered_swi_callbacks[i] = NULL;
         swi_callbacks_invoked[i] = 0;
     }
 
-    IRQ_DIRECT_CONNECT(SWI3_EGU3_IRQn, CONFIG_SWI_CALLBACK_HANDLER_IRQ_PRIO, swi_cb_isr, 0);
-    irq_enable(SWI3_EGU3_IRQn);
+    IRQ_DIRECT_CONNECT(CALLBACK_SWI_IRQN,
+        CALLBACK_SWI_IRQ_PRIO,
+        swi_cb_isr,
+        0);
+    irq_enable(CALLBACK_SWI_IRQN);
 }
 
-void invoke_swi_callback(swi_callback_t callback)
+void invoke_swi_callback(
+    swi_callback_t callback)
 {
     for (int i = 0; i < CONFIG_SWI_CALLBACK_LIST_SIZE; ++i) {
         if (callback == registered_swi_callbacks[i]) {
             swi_callbacks_invoked[i] = 1;
-            NVIC_SetPendingIRQ(SWI3_EGU3_IRQn);
+            NVIC_SetPendingIRQ(CALLBACK_SWI_IRQN);
             return;
         }
     }
 }
 
-int register_swi_callback(swi_callback_t callback)
+int register_swi_callback(
+    swi_callback_t callback)
 {
     int free_callback_idx = -1;
     for (int i = 0; i < CONFIG_SWI_CALLBACK_LIST_SIZE; ++i) {

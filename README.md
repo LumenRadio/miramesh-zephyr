@@ -16,7 +16,7 @@ An example of using this module is available here:
 ## Version tags
 
 The repo is tagged with the combination of versions of MiraMesh and nRF Connect SDK like this:
-miramesh-2.10.0-ncs-v2.5.1
+miramesh-2.11.0-beta1-ncs-v3.0.1
 
 The tags say which versions of MiraMesh and NCS that version of
 the integration layer has been built for and tested with.
@@ -26,12 +26,20 @@ the tests have passed.
 
 Other combinations may work, but they have not (yet) been tested by LumenRadio.
 
+# Known version limits
+
+* An API needed by MiraMesh versions before 2.11.0 was removed in NCS v2.6.0, thus preventing interoperability.
+* MiraMesh 2.11.0 requires APIs that were added to NCS v2.9.0.
+
 ## Tested versions
 
 | MiraMesh  | nRF Connect SDK |
 | --------- | --------------- |
 | 2.9.0     | v2.5.0          |
 | 2.10.0    | v2.5.1          |
+| 2.11.0-beta1    | v3.0.1          |
+
+The current code does not support all combinations above. Use the relevant tagged version.
 
 ## Configuration
 
@@ -48,7 +56,7 @@ yml file will take precedence.
 
 Partition manager is easier to work with, but is a Nordic Semiconductor specific extension to Zephyr.
 
-Examples:  
+Examples:
 
 Devicetree overlay (stored in `boards/<board>.overlay` in the example):
 ```
@@ -87,6 +95,18 @@ symbol.
 The [example](https://github.com/LumenRadio/miramesh-zephyr-network-example).
 uses two, one for MiraMesh and one for BLE.
 
+### Front End Module support
+
+If using MiraMesh with a FEM, it should be configured in the factory-config
+area together with the license. See Mira's documentation for how to do that.
+
+If NCS/Zephyr supports the FEM, it should also be configured in Zephyr.
+See Nordic's documentation for how to do that.
+
+If the FEM isn't supported by NCS/Zephyr, the `MIRAMESH_BT_FEM` Kconfig
+option should be turned on. That makes the `miramesh_integration_set_events_for_fem`
+function available. That function should be called once per value in
+the enum `sdc_hci_vs_set_event_start_task_handle_type`, but only after the first time BLE has been used.
 
 ### MiraMesh resource availability verification
 
@@ -117,3 +137,18 @@ available:
 
 * `CONFIG_MIRAMESH_INTEGRATION_VERIFICATION_LOG_EVENTS`
     Logs events from the MAC layer.
+
+
+## Migration Guide: from NCS v2.5.0 to v3.0.1
+
+Hardware configuration for the integration layer has been moved to the device tree.
+
+The following Kconfig options are no longer supported:
+- `CONFIG_MIRAMESH_RTC_ID`
+- `CONFIG_MIRAMESH_RTC_IRQ_PRIO`
+- `CONFIG_MIRAMESH_SWI_ID`
+- `CONFIG_MIRAMESH_SWI_IRQ_PRIO`
+- `CONFIG_SWI_CALLBACK_HANDLER_IRQ_PRIO`
+
+To configure the equivalent parameters using the device tree, refer to the example
+application's device tree overlay file.

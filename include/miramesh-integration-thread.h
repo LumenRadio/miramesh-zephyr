@@ -3,6 +3,7 @@
 
 #include <miramesh.h>
 
-void miramesh_integration_thread_init(miramesh_config_t* config);
+void miramesh_integration_thread_init(
+    miramesh_config_t *config);
 
 #endif /* MIRA_INTEGRATION_THREAD_H */
